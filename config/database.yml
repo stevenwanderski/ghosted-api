@@ -1,0 +1,18 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+
+development:
+  <<: *default
+  database: github-issues-api_development
+
+test:
+  <<: *default
+  database: github-issues-api_test
+
+production:
+  <<: *default
+  database: github-issues-api_production
+  username: github-issues-api
+  password: <%= ENV['GITHUB-ISSUES-API_DATABASE_PASSWORD'] %>
