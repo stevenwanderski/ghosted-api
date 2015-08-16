@@ -4,28 +4,20 @@ class User < ActiveRecord::Base
   has_many :repos, through: :user_repos
   has_many :user_repos, dependent: :destroy
 
-  after_create :populate_repos
+  after_create :populate_repos, unless: :repos_loaded?
 
   def populate_repos
-    # Get all repos from Github
-    repos = fetch_repos
-    # Save all Repo models using bulk insert
-    repo_ids = save_repos(repos)
-    # Save all UserRepo join models using bulk insert
+    logger.info("Populating repos for Github user: #{self.username} (#{self.id})")
+    repo_ids = save_repos(fetch_repos)
     save_user_repos(repo_ids)
+    self.update(repos_loaded: true)
+    logger.info("Successfully populated repos for Github user: #{self.username} (#{self.id})")
   end
 
   def fetch_repos
     client = Octokit::Client.new(access_token: self.access_token)
-    repos = client.repositories(nil, per_page: 10)
-    last_response = client.last_response
-
-    until last_response.rels[:next].nil?
-      last_response = last_response.rels[:next].get
-      repos += last_response.data
-    end
-
-    repos
+    client.auto_paginate = true
+    client.repositories
   end
 
   def save_repos(repos)

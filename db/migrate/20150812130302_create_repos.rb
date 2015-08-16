@@ -3,7 +3,8 @@ class CreateRepos < ActiveRecord::Migration
     create_table :repos, id: :uuid do |t|
       t.integer :repo_id, null: false
       t.string :name, null: false
-      t.jsonb :meta, default: {}
+      t.boolean :favorite, default: false
+      t.boolean :issues_loaded, default: false
 
       t.timestamps null: false
     end

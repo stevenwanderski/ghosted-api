@@ -9,7 +9,6 @@ class V1::TokensController < ApplicationController
     user_attrs = {
       username: user_data.login,
       avatar: user_data.avatar_url,
-      meta: user_data.attrs,
       access_token: token.access_token
     }
 
