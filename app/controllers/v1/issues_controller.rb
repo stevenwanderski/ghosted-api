@@ -5,7 +5,7 @@ class V1::IssuesController < ApplicationController
 
   # TODO: protect against unauthorized resources (check the repo owner is caller)
   def index
-    render json: @repo.issues.order(:weight)
+    render json: JSONAPI::Serializer.serialize(@repo.issues.order(:weight), is_collection: true)
   end
 
   def weights

@@ -4,14 +4,14 @@ class V1::ReposController < ApplicationController
     if(params[:favorite])
       repos = repos.where(favorite: params[:favorite])
     end
-    render json: repos
+    render json: JSONAPI::Serializer.serialize(repos, is_collection: true)
   end
 
   # TODO: protect against unauthorized resources (check the repo owner is caller)
   def update
     repo = Repo.find(params[:id])
     if repo.update(repo_params)
-      render json: repo, status: :ok
+      render json: JSONAPI::Serializer.serialize(repo), status: :ok
     else
       render json: { errors: repo.errors }, status: :unprocessable_entity
     end
@@ -20,7 +20,7 @@ class V1::ReposController < ApplicationController
   # TODO: protect against unauthorized resources (check the repo owner is caller)
   def show
     repo = Repo.find(params[:id])
-    render json: repo
+    render json: JSONAPI::Serializer.serialize(repo)
   end
 
   private

@@ -12,6 +12,7 @@ gem 'octokit', '~> 3.0'
 gem 'rack-cors', require: 'rack/cors'
 gem 'attr_encrypted'
 gem 'activerecord-import'
+gem 'jsonapi-serializers'
 
 group :development, :test do
   gem 'quiet_assets'
