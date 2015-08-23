@@ -27,7 +27,7 @@ class V1::ReposController < ApplicationController
   end
 
   def issues
-    render json: IssueSerializer.serialize(@repo.issues, is_collection: true)
+    render json: IssueSerializer.serialize(@repo.issues.order(:weight), is_collection: true)
   end
 
   def milestones
