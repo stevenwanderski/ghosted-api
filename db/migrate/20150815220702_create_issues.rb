@@ -2,6 +2,7 @@ class CreateIssues < ActiveRecord::Migration
   def change
     create_table :issues, id: :uuid do |t|
       t.uuid :repo_id, null: false
+      t.uuid :milestone_id
       t.text :title, null: false
       t.text :body
       t.string :state, null: false

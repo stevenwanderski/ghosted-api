@@ -1,12 +1,5 @@
 class V1::IssuesController < ApplicationController
-  before_filter :assign_repo, only: [:index]
-  before_filter :check_for_loaded_issues, only: [:index]
-  before_filter :verify_weights_format, only: [:weights]
-
-  # TODO: protect against unauthorized resources (check the repo owner is caller)
-  def index
-    render json: JSONAPI::Serializer.serialize(@repo.issues.order(:weight), is_collection: true)
-  end
+  before_filter :verify_weights_format
 
   def weights
     weights_params.each do |key, value|
@@ -16,17 +9,6 @@ class V1::IssuesController < ApplicationController
   end
 
   private
-
-  def assign_repo
-    if params[:repo_id].nil?
-      return render json: { errors: "Missing `repo_id` parameter" }, status: :unprocessable_entity
-    end
-    @repo = Repo.find(params[:repo_id])
-  end
-
-  def check_for_loaded_issues
-    @repo.populate_issues(@user.access_token) unless @repo.issues_loaded?
-  end
 
   def weights_params
     params.require(:weights)

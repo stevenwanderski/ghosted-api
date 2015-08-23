@@ -18,10 +18,11 @@ RSpec.describe V1::IssuesController, type: :controller do
 
     context "#check_for_loaded_issues" do
       it "calls `populate_issues` on the repo if issues have not been populated" do
-        repo = create(:repo, issues_loaded: false)
-        create(:user_repo, user: @user, repo: repo)
+        repo = create(:repo, issues_loaded: false, milestones_loaded: true)
+        issue_fetcher = IssueFetcher.new(repo, @user.access_token)
+        allow_any_instance_of(IssueFetcher).to receive(:issues).and_return([])
 
-        expect_any_instance_of(Repo).to receive(:populate_issues).with(@user.access_token)
+        expect_any_instance_of(IssueFetcher).to receive(:fetch)
 
         get :index, repo_id: repo.id
       end

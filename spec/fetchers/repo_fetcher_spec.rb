@@ -1,17 +1,17 @@
 require 'rails_helper'
 
-RSpec.describe User, type: :model do
+RSpec.describe RepoFetcher do
   context "#save_repos" do
     it "saves repos that do not already exist and returns the ids" do
       repo = create(:repo, repo_id: 1)
       user = create(:user)
       repos_to_save = [
-        double(id: 2, name: "repo-2"),
-        double(id: 3, name: "repo-3"),
-        double(id: repo.repo_id, name: repo.name)
+        double(id: 2, name: "repo-2", full_name: "repo/repo-2"),
+        double(id: 3, name: "repo-3", full_name: "repo/repo-3"),
+        double(id: repo.repo_id, name: repo.name, full_name: repo.full_name)
       ]
 
-      ids = user.save_repos(repos_to_save)
+      ids = RepoFetcher.new(user).save_repos(repos_to_save)
 
       expect(Repo.count).to eq(3)
       expect(ids.count).to eq(2)
@@ -24,7 +24,7 @@ RSpec.describe User, type: :model do
       repo2 = create(:repo)
       user = create(:user)
 
-      ids = user.save_user_repos([repo1.id, repo2.id])
+      ids = RepoFetcher.new(user).save_user_repos([repo1.id, repo2.id])
 
       expect(UserRepo.count).to eq(2)
       expect(ids.count).to eq(2)

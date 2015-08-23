@@ -11,31 +11,46 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150815220702) do
+ActiveRecord::Schema.define(version: 20150817004823) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
   create_table "issues", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
-    t.uuid     "repo_id",                null: false
-    t.text     "title",                  null: false
+    t.uuid     "repo_id",                  null: false
+    t.uuid     "milestone_id"
+    t.text     "title",                    null: false
     t.text     "body"
-    t.string   "state",                  null: false
-    t.integer  "number",                 null: false
-    t.integer  "issue_id",               null: false
-    t.integer  "weight",     default: 0, null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.string   "state",                    null: false
+    t.integer  "number",                   null: false
+    t.integer  "issue_id",                 null: false
+    t.integer  "weight",       default: 0, null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+  end
+
+  create_table "milestones", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
+    t.uuid     "repo_id",                  null: false
+    t.integer  "milestone_id",             null: false
+    t.integer  "number",                   null: false
+    t.string   "state",                    null: false
+    t.text     "title",                    null: false
+    t.text     "body"
+    t.integer  "weight",       default: 0, null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
   end
 
   create_table "repos", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
-    t.integer  "repo_id",                       null: false
-    t.string   "name",                          null: false
-    t.boolean  "favorite",      default: false
-    t.boolean  "issues_loaded", default: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.integer  "repo_id",                           null: false
+    t.text     "name",                              null: false
+    t.text     "full_name",                         null: false
+    t.boolean  "favorite",          default: false
+    t.boolean  "issues_loaded",     default: false
+    t.boolean  "milestones_loaded", default: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
   end
 
   add_index "repos", ["repo_id"], name: "index_repos_on_repo_id", unique: true, using: :btree

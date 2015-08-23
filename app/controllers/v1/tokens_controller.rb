@@ -18,6 +18,8 @@ class V1::TokensController < ApplicationController
       user = User.create(user_attrs.merge(github_id: user_data.id))
     end
 
+    RepoFetcher.new(user).fetch unless user.repos_loaded?
+
     render json: {
       user_id: user.id,
       access_token: token.access_token,
