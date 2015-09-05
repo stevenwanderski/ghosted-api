@@ -1,6 +1,7 @@
 class V1::IssuesController < ApplicationController
   before_filter :assign_milestone, only: [:create]
-  before_filter :convert_jsonapi_params, only: [:create]
+  before_filter :assign_repo, only: [:create]
+  before_filter :convert_jsonapi_params, only: [:create, :update]
   before_filter :verify_weights_format, only: [:weights]
 
   def weights
@@ -10,23 +11,21 @@ class V1::IssuesController < ApplicationController
     render json: { success: true }
   end
 
-  def create
-    client = Octokit::Client.new(access_token: @user.access_token)
-    result = client.create_issue(@milestone.repo.full_name, issue_params[:title], nil, milestone: @milestone.number)
-    issue = Issue.new(
-      repo_id: @milestone.repo.id,
+  def update
+    issue = Issue.find(params[:id])
+    result = client.update_issue(issue.repo.full_name, issue.number, issue_params)
+    issue.update!(
       issue_id: result.id,
-      milestone_id: @milestone.id,
       title: result.title,
-      state: result.state,
       number: result.number,
-      weight: 0
+      state: result.state
     )
-    if issue.save
-      render json: IssueSerializer.serialize(issue)
-    else
-      render json: { errors: issue.errors }, status: :unprocessable_entity
-    end
+    render json: IssueSerializer.serialize(issue)
+  end
+
+  def show
+    issue = Issue.find(params[:id])
+    render json: IssueSerializer.serialize(issue)
   end
 
   private
@@ -48,10 +47,18 @@ class V1::IssuesController < ApplicationController
   end
 
   def issue_params
-    params.require(:issue).permit(:title)
+    params.require(:issue).permit(:title, :state)
   end
 
   def assign_milestone
     @milestone = Milestone.find(params[:milestone_id])
+  end
+
+  def assign_repo
+    @repo = Repo.find(params[:repo_id])
+  end
+
+  def client
+    Octokit::Client.new(access_token: @user.access_token)
   end
 end

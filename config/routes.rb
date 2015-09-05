@@ -1,21 +1,26 @@
 Rails.application.routes.draw do
   namespace :v1 do
     post "tokens", to: "tokens#create"
-    put "issues/weights"
 
     resources :repos, only: [:index, :update, :show] do
       resources :milestones, only: [:create]
       member do
         get "issues"
+        post "issues", action: "create_issue"
         get "milestones"
-        # post "milestones", action: "create_milestone"
+      end
+    end
+
+    resources :issues, only: [:show, :update, :create] do
+      collection do
+        put "weights"
       end
     end
 
     resources :milestones, only: [:show] do
-      resources :issues, only: [:create]
       member do
         get "issues"
+        post "issues", action: "create_issue"
       end
     end
   end
