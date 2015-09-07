@@ -5,6 +5,8 @@ class V1::TokensController < ApplicationController
     token = app_client.exchange_code_for_token(params[:code])
     user_data = user_client(token).user
 
+    logger.info("Obtained user data from Github: #{user_data}")
+
     user = User.find_by(github_id: user_data.id)
     user_attrs = {
       username: user_data.login,
@@ -13,8 +15,10 @@ class V1::TokensController < ApplicationController
     }
 
     if user
+      logger.info("Found existing user. Updating values: #{user_attrs}")
       user.update(user_attrs)
     else
+      logger.info("Attempting to create a new user with values: #{user_attrs}")
       user = User.create(user_attrs.merge(github_id: user_data.id))
     end
 
