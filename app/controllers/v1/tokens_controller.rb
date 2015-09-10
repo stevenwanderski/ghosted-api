@@ -5,7 +5,7 @@ class V1::TokensController < ApplicationController
     token = app_client.exchange_code_for_token(params[:code])
     user_data = user_client(token).user
 
-    logger.info("Obtained user data from Github: #{user_data}")
+    logger.info("Obtained user data from Github: #{user_data.login}: #{user_data.id}")
 
     user = User.find_by(github_id: user_data.id)
     user_attrs = {

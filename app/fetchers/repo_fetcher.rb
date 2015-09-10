@@ -10,6 +10,7 @@ class RepoFetcher
 
     repo_ids = save_repos(repos)
     user_repo_ids = save_user_repos(repo_ids)
+    @user.update!(repos_loaded: true)
 
     { repo_ids: repo_ids, user_repos_id: user_repo_ids }
   end

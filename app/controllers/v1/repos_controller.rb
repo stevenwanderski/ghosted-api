@@ -32,7 +32,7 @@ class V1::ReposController < ApplicationController
   end
 
   def milestones
-    render json: MilestoneSerializer.serialize(@repo.milestones, is_collection: true)
+    render json: MilestoneSerializer.serialize(@repo.milestones.order(updated_at: :desc), is_collection: true)
   end
 
   def create_issue

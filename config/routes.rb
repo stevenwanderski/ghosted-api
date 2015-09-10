@@ -17,7 +17,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :milestones, only: [:show] do
+    resources :milestones, only: [:show, :update] do
       member do
         get "issues"
         post "issues", action: "create_issue"

@@ -7,10 +7,10 @@ class User < ActiveRecord::Base
   has_many :user_repos, dependent: :destroy
 
   def reset
-    Milestone.where(id: self.milestones.pluck(:id)).destroy_all
-    Issue.where(id: self.issues.pluck(:id)).destroy_all
-    Repo.where(id: self.repos.pluck(:id)).destroy_all
-    self.user_repos.destroy_all
+    Milestone.delete_all(id: self.milestones.pluck(:id))
+    Issue.delete_all(id: self.issues.pluck(:id))
+    Repo.delete_all(id: self.repos.pluck(:id))
+    UserRepo.delete_all(user_id: self.id)
     self.update(repos_loaded: false)
   end
 end

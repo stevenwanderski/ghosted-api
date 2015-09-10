@@ -1,7 +1,7 @@
 class V1::MilestonesController < ApplicationController
   before_filter :assign_repo, only: [:index, :create]
-  before_filter :assign_milestone, only: [:create_issue]
-  before_filter :convert_jsonapi_params, only: [:create]
+  before_filter :assign_milestone, only: [:create_issue, :update]
+  before_filter :convert_jsonapi_params, only: [:create, :update]
   before_filter :convert_jsonapi_issue_params, only: [:create_issue]
 
   def show
@@ -10,7 +10,6 @@ class V1::MilestonesController < ApplicationController
   end
 
   def create
-    client = Octokit::Client.new(access_token: @user.access_token)
     result = client.create_milestone(@repo.full_name, milestone_params[:title])
     milestone = Milestone.new(
       repo_id: @repo.id,
@@ -27,13 +26,22 @@ class V1::MilestonesController < ApplicationController
     end
   end
 
+  def update
+    result = client.update_milestone(@milestone.repo.full_name, @milestone.number, milestone_params)
+    @milestone.update!(
+      title: result.title,
+      number: result.number,
+      state: result.state
+    )
+    render json: MilestoneSerializer.serialize(@milestone)
+  end
+
   def issues
     milestone = Milestone.find(params[:id])
     render json: IssueSerializer.serialize(milestone.issues.order(:weight), is_collection: true)
   end
 
   def create_issue
-    client = Octokit::Client.new(access_token: @user.access_token)
     result = client.create_issue(@milestone.repo.full_name, issue_params[:title], nil, milestone: @milestone.number)
     issue = Issue.new(
       repo_id: @milestone.repo.id,
@@ -62,7 +70,7 @@ class V1::MilestonesController < ApplicationController
   end
 
   def milestone_params
-    params.require(:milestone).permit(:title)
+    params.require(:milestone).permit(:title, :state, :number, :weight)
   end
 
   def issue_params
@@ -75,5 +83,9 @@ class V1::MilestonesController < ApplicationController
 
   def assign_milestone
     @milestone = Milestone.find(params[:id])
+  end
+
+  def client
+    Octokit::Client.new(access_token: @user.access_token)
   end
 end
