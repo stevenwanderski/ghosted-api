@@ -38,13 +38,14 @@ class V1::ReposController < ApplicationController
   def create_issue
     client = Octokit::Client.new(access_token: @user.access_token)
     result = client.create_issue(@repo.full_name, issue_params[:title], nil)
+    greatest_weight = @repo.issues.order(weight: :desc).first.weight
     issue = Issue.new(
       repo_id: @repo.id,
       issue_id: result.id,
       title: result.title,
       state: result.state,
       number: result.number,
-      weight: 0
+      weight: greatest_weight + 1
     )
     if issue.save
       render json: IssueSerializer.serialize(issue)

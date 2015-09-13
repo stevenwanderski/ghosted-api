@@ -43,6 +43,7 @@ class V1::MilestonesController < ApplicationController
 
   def create_issue
     result = client.create_issue(@milestone.repo.full_name, issue_params[:title], nil, milestone: @milestone.number)
+    greatest_weight = @milestone.issues.order(weight: :desc).first.weight
     issue = Issue.new(
       repo_id: @milestone.repo.id,
       issue_id: result.id,
@@ -50,7 +51,7 @@ class V1::MilestonesController < ApplicationController
       title: result.title,
       state: result.state,
       number: result.number,
-      weight: 0
+      weight: greatest_weight + 1
     )
     if issue.save
       render json: IssueSerializer.serialize(issue)
